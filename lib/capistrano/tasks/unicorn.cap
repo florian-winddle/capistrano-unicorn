@@ -37,15 +37,7 @@ namespace :load do
     set :unicorn_config_stage_file_path, Proc.new{ File.join(fetch(:app_path), fetch(:unicorn_config_stage_rel_file_path)) }
     set :unicorn_default_pid           , Proc.new{ File.join(fetch(:app_path), 'tmp', 'pids', 'unicorn.pid') }
     set :unicorn_pid, Proc.new{
-      extracted_pid = extract_pid_file
-      if extracted_pid
-        extracted_pid
-      else
-        # TODO logger is not defined
-        #logger.important "err :: failed to auto-detect pid from #{local_unicorn_config}"
-        #logger.important "err :: falling back to default: #{unicorn_default_pid}"
-        fetch :unicorn_default_pid
-      end
+      fetch :unicorn_default_pid
     }
   end
 end
@@ -126,7 +118,7 @@ namespace :unicorn do
   desc 'Reload Unicorn'
   task :reload do
     on roles unicorn_roles, :except => {:no_release => true} do
-      execute "if #{unicorn_is_running?}; then #{unicorn_send_signal('HUP')}; else #{start_unicorn}; fi;"
+      execute "if #{unicorn_is_running?}; then #{unicorn_send_signal('HUP')}; else #{start_unicorn} fi;"
       # run <<-END
       #   if #{unicorn_is_running?}; then
       #     echo "Reloading Unicorn...";
